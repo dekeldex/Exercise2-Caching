@@ -17,7 +17,7 @@ def put():
     expiration_date = request.args.get('expiration_date')
     memory["str_key"] = {
         "data": data,
-        "expiration_date" = expiration_date
+        "expiration_date": expiration_date
     }
     return "YAY", 201
 
