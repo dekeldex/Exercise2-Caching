@@ -6,9 +6,9 @@ memory = {}
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/healthCheck')
 def healthCheck():
-    return "healty", 201
+    return "healthy", 201
 
 @app.route('/put')
 def put():
