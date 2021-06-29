@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def healthCheck():
-    return true
+    return "healty", 201
 
 @app.route('/put')
 def put():
