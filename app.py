@@ -8,7 +8,7 @@ r = redis.Redis(host='localhost', port=6379, db=0)
 
 app = Flask(__name__)
 
-@app.route('/healthCheck')
+@app.route('/')
 def healthCheck():
     return true
 
