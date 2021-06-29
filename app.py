@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/healthCheck')
 def healthCheck():
-    return "healthy", 201
+    return "healthy", 200
 
 @app.route('/put')
 def put():
@@ -19,7 +19,7 @@ def put():
         "data": data,
         "expiration_date": expiration_date
     }
-    return "YAY", 201
+    return "YAY", 200
 
 
 # @app.route('/exit')
