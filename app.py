@@ -8,6 +8,10 @@ r = redis.Redis(host='localhost', port=6379, db=0)
 
 app = Flask(__name__)
 
+@app.route('/healthCheck')
+def healthCheck():
+    return true
+
 @app.route('/entry')
 def enter():
     plate = request.args.get('plate')
