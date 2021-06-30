@@ -3,9 +3,38 @@ import json
 import boto3
 from flask import Flask, request
 from ec2_metadata import ec2_metadata
+import threading
 
-currentInstanceId = ec2_metadata.instance_id
+
+current_instance_id = ec2_metadata.instance_id
 memory = {}
+instances_health = {}
+
+alb_client = boto3.client('elbv2', region_name='us-east-2')
+ec2_client = boto3.resource('ec2', region_name='us-east-2')
+
+f1 = open("targetGroupArn.txt", "r")
+target_group_arn = f1.read()
+f1.close()
+f2 = open("loadBalancerArn.txt", "r")
+load_balancer_arn = f2.read()
+f2.close()
+
+
+def set_interval(func, sec):
+    def func_wrapper():
+        set_interval(func, sec)
+        func()
+    t = threading.Timer(sec, func_wrapper)
+    t.start()
+    return t
+
+def get_healthy_instances(alb_client, target_group_arn):
+    response = alb_client.describe_target_health(TargetGroupArn=target_group_arn)
+    for info in response.TargetHealthDescriptions:
+        instances_health[info.Target.Id] = info.TargetHealth.State
+
+set_interval(get_healthy_instances, 10)
 
 app = Flask(__name__)
 
@@ -22,7 +51,7 @@ def put():
         "data": data,
         "expiration_date": expiration_date
     }
-    return currentInstanceId + " recieved put request", 200
+    return get_healthy_instances, 200
 
 
 # @app.route('/exit')
