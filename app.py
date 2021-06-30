@@ -6,10 +6,11 @@ from ec2_metadata import ec2_metadata
 import threading
 import jump
 
-
 current_instance_id = ec2_metadata.instance_id
 memory = {}
+instances_order = []
 instances_health = {}
+instances_ip = {}
 
 alb_client = boto3.client('elbv2', region_name='us-east-2')
 ec2_client = boto3.resource('ec2', region_name='us-east-2')
@@ -36,8 +37,15 @@ def get_healthy_instances():
     print(response)
     for info in response["TargetHealthDescriptions"]:
         instances_health[info["Target"]["Id"]] = info["TargetHealth"]["State"]
+        if(info["TargetHealth"]["State"] == "healthy"):
+            instances_order.append(info["TargetHealth"]["State"])
+            if info["TargetHealth"]["State"] not in instances_ip:
+                data = ec2_client.describe_instances(InstanceIds=[info["TargetHealth"]["State"]])
+                print(data)
+                instances_ip[info["TargetHealth"]["State"]] = data["Reservations"][0]["Instances"][0]["PrivateIpAddress"]
+    instances_order.sort()    
 
-set_interval(get_healthy_instances, 10)
+set_interval(get_healthy_instances, 30)
 
 app = Flask(__name__)
 
