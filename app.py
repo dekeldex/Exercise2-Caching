@@ -54,7 +54,7 @@ def put():
         "data": data,
         "expiration_date": expiration_date
     }
-    return get_healthy_instances, 200
+    return instances_health, 200
 
 
 # @app.route('/exit')
