@@ -35,7 +35,7 @@ def get_healthy_instances(alb_client, target_group_arn):
     for info in response.TargetHealthDescriptions:
         instances_health[info.Target.Id] = info.TargetHealth.State
 
-set_interval(get_healthy_instances, 10)
+set_interval(get_healthy_instances(alb_client,target_group_arn), 10)
 
 app = Flask(__name__)
 
