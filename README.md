@@ -20,3 +20,4 @@ you can get the data back as such: curl "http://my-application-load-balancer-149
 <br>
 <br>
 <br>
+you can then terminate an instance and then run ./deployNewNode.sh to create a new node and reorganize the data
