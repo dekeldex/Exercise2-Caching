@@ -4,6 +4,7 @@ import boto3
 from flask import Flask, request
 from ec2_metadata import ec2_metadata
 import threading
+import jump
 
 
 current_instance_id = ec2_metadata.instance_id
@@ -32,6 +33,7 @@ def set_interval(func, sec):
 
 def get_healthy_instances(alb_client, target_group_arn):
     response = alb_client.describe_target_health(TargetGroupArn=target_group_arn)
+    print(response)
     for info in response.TargetHealthDescriptions:
         instances_health[info.Target.Id] = info.TargetHealth.State
 
