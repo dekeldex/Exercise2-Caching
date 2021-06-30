@@ -2,9 +2,11 @@ import uuid
 import json  
 import boto3
 from flask import Flask, request
+import requests
 from ec2_metadata import ec2_metadata
 import threading
 import jump
+import xxhash 
 
 current_instance_id = ec2_metadata.instance_id
 memory = {}
@@ -58,37 +60,71 @@ def put():
     str_key = request.args.get('str_key')
     data = request.args.get('data')
     expiration_date = request.args.get('expiration_date')
-    memory["str_key"] = {
+    v_node_id = xxhash.xxh64(key).intdigest() % 1024
+    node_index = jump.hash(v_node_id, len(instances_order))
+    if(len(instances_order) == node_index):
+        next_node_index = 0
+    else:
+        next_node_index = node_index + 1
+    if(instances_order[node_index] != current_instance_id):
+        requests.get("http://" + instances_ip[instances_order[node_index]] + ":5000/putInternal?str_key="+str_key+"&data="+data+"&expiration_date="+expiration_date)
+    if(instances_order[next_node_index] != current_instance_id):
+        requests.get("http://" + instances_ip[instances_order[next_node_index]] + ":5000/putInternal?str_key="+str_key+"&data="+data+"&expiration_date="+expiration_date)
+    if((instances_order[next_node_index] == current_instance_id) or (instances_order[node_index] == current_instance_id)):
+        memory[str_key] = {
+            "data": data,
+            "expiration_date": expiration_date
+        }
+    
+    return "data saved!", 200
+
+@app.route('/putInternal')
+def putInternal():
+    str_key = request.args.get('str_key')
+    data = request.args.get('data')
+    expiration_date = request.args.get('expiration_date')
+
+    memory[str_key] = {
         "data": data,
         "expiration_date": expiration_date
     }
-    return instances_health, 200
-
-
-# @app.route('/exit')
-# def exit():
-#     id = request.args.get("ticketId")
-#     ticket_str = r.get(id)
-#     if ticket_str is None:
-#         return "No such ticket", 404
-
-#     ticket = json.loads(ticket_str)
-
-#     if "exit" in ticket:
-#         return ticket_str, 406
-
-#     entry_time = datetime.fromisoformat(ticket["entry"])
-#     exit = datetime.now()
-#     diff_in_minutes = int((exit - entry_time).total_seconds() / 60)
-#     charges = diff_in_minutes / 15
-#     if diff_in_minutes % 15 != 0:
-#         charges += 1
     
-#     ticket["exit"] = exit.isoformat()
-#     ticket["chargs"] = charges
-#     ticket["total_cost"] = charges * 2.5
+    return "data saved!", 200
 
-#     r.set(id, json.dumps(ticket))
 
-#     return ticket
+@app.route('/get')
+def get():
+    final_response = "null"
+    str_key = request.args.get('str_key')
+    v_node_id = xxhash.xxh64(key).intdigest() % 1024
+    node_index = jump.hash(v_node_id, len(instances_order))
+    if(len(instances_order) == node_index):
+        next_node_index = 0
+    else:
+        next_node_index = node_index + 1
+    if((instances_order[next_node_index] == current_instance_id) or (instances_order[node_index] == current_instance_id)):
+        if str_key not in memory:
+            return "null", 200
+        else:
+            return memory[str_key]["data"], 200
+    else:
+        
+        request_from_node = requests.get("http://" + instances_ip[instances_order[node_index]] + ":5000/getInternal?str_key="+str_key)
+        request_from_next_node = requests.get("http://" + instances_ip[instances_order[next_node_index]] + ":5000/getInternal?str_key="+str_key)
+        if(request_from_node.status_code == 200 and request_from_node.text != 'null'):
+            final_response = request_from_node.text
+        
+        if(request_from_next_node.status_code == 200 and request_from_next_node.text != 'null'):
+            final_response = request_from_next_node.text
+        
 
+    return final_response, 200
+
+@app.route('/getInternal')
+def getInternal():
+    str_key = request.args.get('str_key')
+
+    if str_key not in memory:
+        return "null", 200
+    else:
+        return memory[str_key]["data"], 200
