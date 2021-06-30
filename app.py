@@ -35,7 +35,7 @@ def get_healthy_instances(alb_client, target_group_arn):
     response = alb_client.describe_target_health(TargetGroupArn=target_group_arn)
     print(response)
     for info in response["TargetHealthDescriptions"]:
-        instances_health["info"]["Target"]["Id"] = info["TargetHealth"]["State"]
+        instances_health[info["Target"]["Id"]] = info["TargetHealth"]["State"]
 
 set_interval(get_healthy_instances(alb_client,target_group_arn), 10)
 
