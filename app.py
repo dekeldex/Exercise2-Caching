@@ -148,7 +148,7 @@ def getInternal():
     else:
         return memory[str_key]["data"], 200
 
-@app.rout('/newNodeAdded')
+@app.route('/newNodeAdded')
 def newNodeAdded():
     instances_order = []
     instances_health = {}
