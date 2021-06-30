@@ -1,7 +1,10 @@
 import uuid
 import json  
+import boto3
 from flask import Flask, request
+from ec2_metadata import ec2_metadata
 
+currentInstanceId = ec2_metadata.instance_id
 memory = {}
 
 app = Flask(__name__)
@@ -19,7 +22,7 @@ def put():
         "data": data,
         "expiration_date": expiration_date
     }
-    return "YAY", 200
+    return currentInstanceId + " recieved put request", 200
 
 
 # @app.route('/exit')
