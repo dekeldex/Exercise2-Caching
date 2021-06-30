@@ -15,7 +15,7 @@ instances_health = {}
 instances_ip = {}
 
 alb_client = boto3.client('elbv2', region_name='us-east-2')
-ec2_client = boto3.resource('ec2', region_name='us-east-2')
+ec2_client = boto3.client('ec2', region_name='us-east-2')
 
 targetGroupArn_file = open("targetGroupArn.txt", "r")
 target_group_arn = targetGroupArn_file.read()
