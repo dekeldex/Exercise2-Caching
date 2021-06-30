@@ -40,11 +40,11 @@ def get_healthy_instances():
     for info in response["TargetHealthDescriptions"]:
         instances_health[info["Target"]["Id"]] = info["TargetHealth"]["State"]
         if(info["TargetHealth"]["State"] == "healthy"):
-            instances_order.append(info["TargetHealth"]["State"])
-            if info["TargetHealth"]["State"] not in instances_ip:
-                data = ec2_client.describe_instances(InstanceIds=[info["TargetHealth"]["State"]])
+            instances_order.append(info["Target"]["Id"])
+            if info["Target"]["Id"] not in instances_ip:
+                data = ec2_client.describe_instances(InstanceIds=[info["Target"]["Id"]])
                 print(data)
-                instances_ip[info["TargetHealth"]["State"]] = data["Reservations"][0]["Instances"][0]["PrivateIpAddress"]
+                instances_ip[info["Target"]["Id"]] = data["Reservations"][0]["Instances"][0]["PrivateIpAddress"]
     instances_order.sort()    
 
 set_interval(get_healthy_instances, 30)
