@@ -13,12 +13,13 @@ instances_health = {}
 alb_client = boto3.client('elbv2', region_name='us-east-2')
 ec2_client = boto3.resource('ec2', region_name='us-east-2')
 
-f1 = open("targetGroupArn.txt", "r")
-target_group_arn = f1.read()
-f1.close()
-f2 = open("loadBalancerArn.txt", "r")
-load_balancer_arn = f2.read()
-f2.close()
+targetGroupArn_file = open("targetGroupArn.txt", "r")
+target_group_arn = targetGroupArn_file.read()
+targetGroupArn_file.close()
+
+loadBalancerArnloadBalancerArn_file = open("loadBalancerArn.txt", "r")
+load_balancer_arn = loadBalancerArnloadBalancerArn_file.read()
+loadBalancerArnloadBalancerArn_file.close()
 
 
 def set_interval(func, sec):
