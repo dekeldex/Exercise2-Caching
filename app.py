@@ -155,3 +155,4 @@ def newNodeAdded():
     instances_ip = {}
     t = threading.Timer(60, reorganize)
     t.start()
+    return "reorganizing in 60 seconds", 200
