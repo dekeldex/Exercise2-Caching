@@ -56,7 +56,7 @@ def reorganize():
         v_node_id = xxhash.xxh64(key ).intdigest() % 1024
         node_index = jump.hash(v_node_id, len(instances_order))
        
-        if(len(instances_order) == node_index):
+        if(len(instances_order) - 1 == node_index):
             next_node_index = 0
         else:
             next_node_index = node_index + 1
@@ -82,7 +82,7 @@ def put():
     expiration_date = request.args.get('expiration_date')
     v_node_id = xxhash.xxh64(str_key ).intdigest() % 1024
     node_index = jump.hash(v_node_id, len(instances_order))
-    if(len(instances_order) == node_index):
+    if(len(instances_order) - 1 == node_index):
         next_node_index = 0
     else:
         next_node_index = node_index + 1
